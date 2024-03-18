@@ -130,3 +130,65 @@ select contest_id, round(count(user_id)*100.00/(select count(*) from users),2) a
 from register
 group by contest_id  
 order by percentage desc, contest_id
+
+/* 1211. Queries Quality and Percentage
+We define query quality as:
+The average of the ratio between query rating and its position.
+We also define poor query percentage as:
+The percentage of all queries with rating less than 3.
+Write a solution to find each query_name, the quality and poor_query_percentage.
+Both quality and poor_query_percentage should be rounded to 2 decimal places.
+Return the result table in any order. */
+select query_name, round(sum(rating/position)/count(query_name) ,2) as quality
+,ROUND(AVG(CASE WHEN rating < 3 THEN 1 ELSE 0 END)*100,2) as poor_query_percentage 
+from queries 
+where query_name is not null
+group by query_name
+
+/* 1193. Monthly Transactions I
+Write an SQL query to find for each month and country, the number of transactions and 
+their total amount, the number of approved transactions and their total amount.
+Return the result table in any order. */
+select Date_format(trans_date, '%Y-%m')  as month, country,
+ count(state) trans_count, count(if(state='approved',1,null)) approved_count, 
+ sum(amount) trans_total_amount, 
+ SUM(IF(state = 'approved', amount, 0)) as approved_total_amount from transactions
+group by country, month
+
+/* 2356. Number of Unique Subjects Taught by Each Teacher
+Write a solution to calculate the number of unique subjects each teacher teaches in the university.
+Return the result table in any order. */
+select teacher_id , count(distinct subject_id) cnt from teacher
+group by teacher_id
+
+/* 1141. User Activity for the Past 30 Days I
+Write a solution to find the daily active user count for a period of 30 days ending 2019-07-27 inclusively.
+ A user was active on someday if they made at least one activity on that day.
+Return the result table in any order. */
+
+select activity_date as day , count(distinct user_id) as active_users 
+from activity
+WHERE (activity_date > "2019-06-27" AND activity_date <= "2019-07-27") 
+group by activity_date
+
+/* 1070. Product Sales Analysis III
+Write a solution to select the product id, year, quantity, and price for the first year of every product sold.
+Return the resulting table in any order. */
+
+select product_id, year as first_year, quantity, price from sales  
+where (product_id, year) in (
+    select product_id, min(year)
+    from sales
+    group by product_id 
+)
+
+/* 596. Classes More Than 5 Students
+Write a solution to find all the classes that have at least five students.
+Return the result table in any order. */
+select class from courses   group by class having count(student)> 4
+
+/* 1729. Find Followers Count
+Write a solution that will, for each user, return the number of followers.
+Return the result table ordered by user_id in ascending order. */
+
+select user_id, count(follower_id) as followers_count from followers group by user_id order by user_id
