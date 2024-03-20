@@ -192,3 +192,64 @@ Write a solution that will, for each user, return the number of followers.
 Return the result table ordered by user_id in ascending order. */
 
 select user_id, count(follower_id) as followers_count from followers group by user_id order by user_id
+
+6/* 19. Biggest Single Number
+A single number is a number that appeared only once in the MyNumbers table.
+Find the largest single number. If there is no single number, report null. */
+select max(num) as num from (
+    select num from mynumbers  group by num having count(*) = 1
+) as nums
+
+/* 1731. The Number of Employees Which Report to Each Employee
+For this problem, we will consider a manager an employee who has at least 1 other employee reporting 
+to them. Write a solution to report the ids and the names of all managers, the number of employees 
+who report directly to them, and the average age of the reports rounded to the nearest integer.
+Return the result table ordered by employee_id. */
+
+SELECT
+    m.employee_id,
+    m.name,
+    count(e.reports_to) AS reports_count,
+    round(avg(e.age)) AS average_age
+FROM
+    Employees e
+    JOIN Employees m ON e.reports_to = m.employee_id
+GROUP BY
+    m.employee_id
+ORDER BY
+    m.employee_id;
+
+/* 610. Triangle Judgement
+Report for every three line segments whether they can form a triangle.
+Return the result table in any order. */
+select x, y,z,
+if(x+y > z and y+z > x and z+x > y, "Yes","No") as triangle
+from triangle 
+
+/* 1978. Employees Whose Manager Left the Company
+Find the IDs of the employees whose salary is strictly less than $30000 and whose manager left the company. When a manager leaves the company, their information is deleted 
+from the Employees table, but the reports still have their manager_id set to the manager that left.
+Return the result table ordered by employee_id. */
+
+select employee_id from employees where salary < 30000 and manager_id not in( select employee_id from employees)
+order by employee_id 
+
+/* 1341. Movie Rating
+Find the name of the user who has rated the greatest number of movies. 
+In case of a tie, return the lexicographically smaller user name.
+Find the movie name with the highest average rating in February 2020. 
+In case of a tie, return the lexicographically smaller movie name. */
+
+(SELECT name AS results
+FROM MovieRating JOIN Users USING(user_id)
+GROUP BY name
+ORDER BY COUNT(*) desc, name
+LIMIT 1)
+
+UNION ALL
+
+(select title as results from movierating join movies using(movie_id) 
+where extract(Year_month from created_at) = 202002
+group by title
+order by avg(rating) desc,title
+limit 1)
