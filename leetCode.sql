@@ -253,3 +253,41 @@ where extract(Year_month from created_at) = 202002
 group by title
 order by avg(rating) desc,title
 limit 1)
+
+/* 602. Friend Requests II: Who Has the Most Friends
+Write a solution to find the people who have the most friends and the most friends number.
+The test cases are generated so that only one person has the most friends. */
+
+SELECT id, COUNT(*) AS num 
+FROM (
+    SELECT requester_id AS id FROM RequestAccepted
+    UNION ALL
+    SELECT accepter_id FROM RequestAccepted
+) AS friends_count
+GROUP BY id
+ORDER BY num DESC 
+LIMIT 1;
+
+/* 585. Investments in 2016
+Write a solution to report the sum of all total investment values in 2016 tiv_2016, for all policyholders who:
+have the same tiv_2015 value as one or more other policyholders, and
+are not located in the same city as any other policyholder (i.e., the (lat, lon) attribute pairs must be unique).
+Round tiv_2016 to two decimal places. */
+
+select round(sum(tiv_2016),2) as tiv_2016 from insurance 
+where tiv_2015 in 
+(select tiv_2015 from insurance group by tiv_2015 having count(*) >1 ) and
+(lat, lon) in (select lat, lon from insurance group by lat,lon having count(*)= 1)
+
+/* 185. Department Top Three Salaries
+A company's executives are interested in seeing who earns the most money in each of the company's departments. 
+A high earner in a department is an employee who has a salary in the top three unique salaries for that department.
+Write a solution to find the employees who are high earners in each of the departments. 
+Return the result table in any order.*/
+
+select d.name as department , e1.name as employee, e1.salary as Salary
+from Employee e1 join Department d on e1.DepartmentId = d.Id
+where  3 > (select count(distinct (e2.Salary))
+        from  Employee e2
+        where e2.Salary > e1.Salary
+            and e1.DepartmentId = e2.DepartmentId)
